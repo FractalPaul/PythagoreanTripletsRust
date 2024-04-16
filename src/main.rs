@@ -1,6 +1,7 @@
 extern crate csv;
 
 use std::error::Error;
+use std::mem;
 use std::process;
 
 // **********************************************************************************************************************
@@ -23,9 +24,14 @@ fn main() {
 
     for m in 1..=MAX_NUM {
         for n in 1..m {
-            let a = calc_a(m, n);
-            let b = calc_b(m, n);
+            let mut a = calc_a(m, n);
+            let mut b = calc_b(m, n);
             let c = calc_c(m, n);
+
+            // If A is greater than B then swap the values to order the numbers in ascending order in the list.
+            if a > b {
+                mem::swap(&mut a, &mut b);
+            }
 
             // Store into a 3 Dimension vector for writting to file.
             data.push([a, b, c]);
@@ -39,6 +45,32 @@ fn main() {
         }
     }
 
+    // remove zeros out of vector array.
+    for lin in data.len()..1 {
+        if data[lin][0] == 0 && data[lin][1] == 0 {
+            data.remove(lin);
+        }
+    }
+
+    // Sort the 2 dimensional array of values by A and B.
+    pyths.sort_by(|a, b| {
+        if a[0] != b[0] {
+            a[0].cmp(&b[0])
+        } else {
+            a[1].cmp(&b[1])
+        }
+    });
+
+    // Sort the Vector array of triplets by A and B ascending.
+    data.sort_by(|a, b| {
+        if a[0] != b[0] {
+            a[0].cmp(&b[0])
+        } else {
+            a[1].cmp(&b[1])
+        }
+    });
+
+    // Print the output.
     print_output(pyths);
 
     let csv_file_path = "Pythagorean_Triplets.csv";
@@ -70,13 +102,15 @@ fn print_output(lines: [[u16; 3]; 440]) {
     println!("#: A, B, C");
 
     for i in 0..lines.len() {
-        println!(
-            "{}: {},{}, {}",
-            i + 1,
-            lines[i][0],
-            lines[i][1],
-            lines[i][2]
-        );
+        if lines[i][0] > 0 {
+            println!(
+                "{}: {},{}, {}",
+                i + 1,
+                lines[i][0],
+                lines[i][1],
+                lines[i][2]
+            );
+        }
     }
 }
 
